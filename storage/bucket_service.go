@@ -28,10 +28,11 @@ type BucketService struct {
 
 // NewBucketService returns a new BucketService for the provided EngineSchema,
 // which typically will be an Engine.
-func NewBucketService(s influxdb.BucketService, engine EngineSchema) *BucketService {
+func NewBucketService(logger *zap.Logger, s influxdb.BucketService, engine EngineSchema) *BucketService {
 	return &BucketService{
 		BucketService: s,
 		engine:        engine,
+		log:           logger,
 	}
 }
 

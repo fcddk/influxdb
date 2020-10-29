@@ -852,9 +852,10 @@ func (m *Launcher) run(ctx context.Context) (err error) {
 	m.reg.MustRegister(m.engine.PrometheusCollectors()...)
 
 	var (
-		deleteService platform.DeleteService = m.engine
-		pointsWriter  storage.PointsWriter   = m.engine
-		backupService platform.BackupService = m.engine
+		deleteService  platform.DeleteService  = m.engine
+		pointsWriter   storage.PointsWriter    = m.engine
+		backupService  platform.BackupService  = m.engine
+		restoreService platform.RestoreService = m.engine
 	)
 
 	deps, err := influxdb.NewDependencies(
@@ -1122,7 +1123,7 @@ func (m *Launcher) run(ctx context.Context) (err error) {
 		labelSvc = label.NewLabelController(m.flagger, m.kvService, ls)
 	}
 
-	ts.BucketService = storage.NewBucketService(ts.BucketService, m.engine)
+	ts.BucketService = storage.NewBucketService(m.log, ts.BucketService, m.engine)
 	ts.BucketService = dbrp.NewBucketService(m.log, ts.BucketService, dbrpSvc)
 
 	var onboardOpts []tenant.OnboardServiceOptionFn
@@ -1191,7 +1192,7 @@ func (m *Launcher) run(ctx context.Context) (err error) {
 		},
 		DeleteService:        deleteService,
 		BackupService:        backupService,
-		KVBackupService:      m.kvService,
+		RestoreService:       restoreService,
 		AuthorizationService: authSvc,
 		AuthorizerV1:         authorizerV1,
 		AlgoWProxy:           &http.NoopProxyHandler{},
